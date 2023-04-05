@@ -5,21 +5,41 @@ from .services import create_new_post
 
 from .models import Post
 from .serializer import PostSerializer
+from Profile_App.models import UserProfile
 
 # Create your views here.
 
 @api_view(['GET'])
 def list_posts(request):
+    user=request.user
 
     try:
-        posts = Post.objects.all()
+        profile =UserProfile.objects.select_related('user').get(user=user)
+        following =profile.following.all()
 
-        serializer = PostSerializer(posts,many=True)
+   #retriving all user following id
+        following_ids=[]
+        for user in following:
+            following_ids.append(user)
 
-        return Response({'posts':serializer.data},status=status.HTTP_200_OK)
-    
+    # retriving all user following post through their id
+        following_posts=[]
+        for id in following_ids:
+            print('ff',id)
+            post=Post.objects.filter(author=id)
+            following_posts.append(list(post))
+
+        print(following_posts)
+        
+
+
+            
+
+        return Response({'posts':'done'},status=status.HTTP_200_OK)
+
     except Exception as e:
-        return Response({'posts':f'{e}'},status=status.HTTP_204_NO_CONTENT)
+         return Response({'posts':str(e)},status=status.HTTP_200_OK)
+       
 
 @api_view(['GET'])
 def get_post(request,pk):

@@ -26,11 +26,15 @@ class SkillTag(models.Model):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,related_name='profile')
     profile_pic = models.ImageField(blank=True, null=True, default='default.png')
     bio = models.TextField(null=True)
+    followers = models.ManyToManyField(User, related_name='user_followers', blank=True)
+    following = models.ManyToManyField(User, related_name='user_following', blank=True)
     vote_ratio = models.IntegerField(blank=True, null=True, default=0)
     skills = models.ManyToManyField(SkillTag, related_name='personal_skills', blank=True)
+    muted = models.ManyToManyField(User, related_name='muted_users', blank=True)
+    blocked = models.ManyToManyField(User, related_name='blocked_users', blank=True)
     interests = models.ManyToManyField(TopicTag, related_name='topic_interests', blank=True)
     id = models.UUIDField(default=uuid.uuid4,  unique=True, primary_key=True, editable=False)
     """

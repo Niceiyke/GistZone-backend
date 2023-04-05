@@ -14,6 +14,9 @@ class myUser(AbstractBaseUser, PermissionsMixin):
     rank= models.PositiveIntegerField(default=0,)
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
+    is_veryfied = models.BooleanField(default=False)
+    is_banned= models.BooleanField(default=False)
+    is_suspended = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
     USERNAME_FIELD = 'email'
