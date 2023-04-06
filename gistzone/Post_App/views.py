@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework  import status
 from .services import create_new_post
+from itertools import chain
 
 from .models import Post
 from .serializer import PostSerializer
@@ -12,6 +13,7 @@ from Profile_App.models import UserProfile
 @api_view(['GET'])
 def list_posts(request):
     user=request.user
+    post=Post.objects.select_related('author').all()
 
     try:
         profile =UserProfile.objects.select_related('user').get(user=user)
@@ -24,14 +26,34 @@ def list_posts(request):
 
     # retriving all user following post through their id
         following_posts=[]
-        for id in following_ids:
-            print('ff',id)
-            post=Post.objects.filter(author=id)
-            following_posts.append(list(post))
+        Post_From_Top_Gisters =post.filter(author__rank__gt=0)
+  
+        Top_Post = post.filter(post_rank__gte=1)
 
-        print(following_posts)
+
+        follo=post.filter(author_id__in=following_ids)
+     
+        
+        for id in following_ids:
+            post=post.filter(author=id)
+            if post.count()>0:
+                following_posts.append(post)
+
+
         
 
+        matches = Post_From_Top_Gisters | Top_Post | follo
+        print('ee',matches.count())
+
+        matches.distinct()
+
+        print('df',matches.count())
+
+       
+
+        
+        feed_post= list(chain(following_posts, Top_Post, Post_From_Top_Gisters))
+       
 
             
 
