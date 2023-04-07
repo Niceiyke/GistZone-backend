@@ -17,6 +17,14 @@ class Downvote(models.Model):
     post =models.ForeignKey('Post',on_delete=models.CASCADE,related_name='downvotes')
     created =models.DateTimeField(auto_now_add=True)
 
+class PostComment(models.Model):
+    owner=models.ForeignKey(User,on_delete=models.CASCADE,db_index=True)
+    content =models.CharField(max_length=1000,)
+    post=models.ForeignKey('Post',on_delete=models.CASCADE,related_name='comments')
+    created=models.DateTimeField(auto_now_add=True)
+    modified =models.DateTimeField(auto_now=True)
+    parent=models.ForeignKey('self',on_delete=models.CASCADE,blank=True,null=True)
+
 
 class Post(models.Model):
     id =models.UUIDField(default=uuid.uuid4,unique=True,primary_key=True,editable=False)

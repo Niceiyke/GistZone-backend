@@ -9,10 +9,14 @@ User =get_user_model()
 
 class USerSerializer(serializers.ModelSerializer):
     password =serializers.CharField(min_length=8, write_only=True)
+    rank =serializers.IntegerField(read_only=True)
+    is_veryfied=serializers.BooleanField(read_only=True)
+    is_suspended=serializers.BooleanField(read_only=True)
+    is_banned=serializers.BooleanField(read_only=True)
     
     class Meta:
         model =User
-        fields =['id','username','email','first_name','last_name','password']
+        fields =['id','username','email','first_name','last_name','rank','is_veryfied','is_banned','is_suspended','password']
 
     
     def validate(self, attrs):

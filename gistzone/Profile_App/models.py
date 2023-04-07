@@ -31,7 +31,6 @@ class UserProfile(models.Model):
     bio = models.TextField(null=True)
     followers = models.ManyToManyField(User, related_name='user_followers', blank=True)
     following = models.ManyToManyField(User, related_name='user_following', blank=True)
-    vote_ratio = models.IntegerField(blank=True, null=True, default=0)
     skills = models.ManyToManyField(SkillTag, related_name='personal_skills', blank=True)
     muted = models.ManyToManyField(User, related_name='muted_users', blank=True)
     blocked = models.ManyToManyField(User, related_name='blocked_users', blank=True)

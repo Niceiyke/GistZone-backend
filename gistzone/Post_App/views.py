@@ -1,8 +1,10 @@
+import random
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework  import status
 from .services import create_new_post
-from itertools import chain
+
 
 from .models import Post
 from .serializer import PostSerializer
@@ -15,49 +17,58 @@ def list_posts(request):
     user=request.user
     post=Post.objects.select_related('author').all()
 
+    if user.is_banned:
+        return Response({'posts':[]},status=status.HTTP_200_OK)
+
+
+
     try:
         profile =UserProfile.objects.select_related('user').get(user=user)
         following =profile.following.all()
+        muted =profile.muted.all()
+        blocked =profile.blocked.all()
+        
 
-   #retriving all user following id
-        following_ids=[]
-        for user in following:
-            following_ids.append(user)
-
-    # retriving all user following post through their id
-        following_posts=[]
-        Post_From_Top_Gisters =post.filter(author__rank__gt=0)
-  
-        Top_Post = post.filter(post_rank__gte=1)
-
-
-        follo=post.filter(author_id__in=following_ids)
+   #retriving all user following 
      
+        user_following=[user for user in following]
+
+    #retriving all user following 
+     
+        muted_users=[user for user in muted]
+
+        blocked_users=[user for user in blocked]
+
+        print(blocked_users)
+
+        final_user_following= [user for user in user_following if user not in (muted_users or blocked_users)]
         
-        for id in following_ids:
-            post=post.filter(author=id)
-            if post.count()>0:
-                following_posts.append(post)
-
-
-        
-
-        matches = Post_From_Top_Gisters | Top_Post | follo
-        print('ee',matches.count())
-
-        matches.distinct()
-
-        print('df',matches.count())
-
        
 
+    # retriving all user following post 
+
+        following_posts=post.filter(author__in=final_user_following)
+
+
+     # retriving Top 5 post with highest Post Rank
+        Top_Post = post.filter(post_rank__gte=1).exclude(author__in= muted_users).exclude(author__in= blocked_users).order_by('post_rank')[0:5]
+
+    # retriving Top 5 post From High Ranking Gisters
+
+        Post_From_Top_Gisters =post.filter(author__rank__gt=0).exclude(author__in= muted_users).exclude(author__in= blocked_users).order_by('created')[:5]
+  
+
+        user_feed = following_posts | Post_From_Top_Gisters | Top_Post 
+
+        user_feed=(list(user_feed))
+
+        print(len(user_feed))
+        random.shuffle(user_feed)
         
-        feed_post= list(chain(following_posts, Top_Post, Post_From_Top_Gisters))
-       
+        serializer =PostSerializer(user_feed, many=True)
+     
 
-            
-
-        return Response({'posts':'done'},status=status.HTTP_200_OK)
+        return Response({'posts':serializer.data},status=status.HTTP_200_OK)
 
     except Exception as e:
          return Response({'posts':str(e)},status=status.HTTP_200_OK)
@@ -65,6 +76,10 @@ def list_posts(request):
 
 @api_view(['GET'])
 def get_post(request,pk):
+    user= request.user
+    
+    if user.is_banned:
+        return Response({'posts':[]},status=status.HTTP_200_OK)
 
     try:
         post =Post.objects.get(id=pk)

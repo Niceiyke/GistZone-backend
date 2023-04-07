@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post,Upvote,Downvote
+from .models import Post,Upvote,Downvote,PostComment
 from User_App.serializer import USerSerializer
 
 
@@ -21,12 +21,21 @@ class DownvoteSerializer(serializers.ModelSerializer):
         model=Downvote
         fields='__all__'
 
+class CommentsSerializer(serializers.ModelSerializer):
+    owner = USerSerializer(read_only=True)
+
+    class Meta:
+        model=PostComment
+        fields='__all__'
+
+
 class PostSerializer(serializers.ModelSerializer):
     author = USerSerializer(read_only=True)
     upvotes =UpvoteSerializer(read_only=True,many=True)
     downvotes =UpvoteSerializer(read_only=True,many=True)
+    comments=CommentsSerializer(read_only=True,many=True)
 
 
     class Meta:
         model=Post
-        fields =['id','content','created','modified','author','upvotes','downvotes']
+        fields =['id','content','created','post_rank','modified','author','upvotes','downvotes','comments']

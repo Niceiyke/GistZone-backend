@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Gist,Upvote,Downvote,GistComment
 
-# Register your models here.
+admin.site.register(Gist)
+admin.site.register(Upvote)
+admin.site.register(Downvote)
+admin.site.register(GistComment)
