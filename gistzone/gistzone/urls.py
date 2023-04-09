@@ -22,5 +22,6 @@ urlpatterns = [
     path('post/',include('Post_App.urls')),
     path('gist/',include('Gist_App.urls')),
     path('user/',include('User_App.urls')),
-    path('api-auth/',include('rest_framework.urls'))
+    path('api-auth/',include('rest_framework.urls')),
+    path('__debug__/', include('debug_toolbar.urls')),
 ]

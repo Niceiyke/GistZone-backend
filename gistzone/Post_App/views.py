@@ -23,7 +23,7 @@ def list_posts(request):
 
 
     try:
-        profile =UserProfile.objects.select_related('user').get(user=user)
+        profile =UserProfile.objects.prefetch_related('user','following').get(user=user)
         following =profile.following.all()
         muted =profile.muted.all()
         blocked =profile.blocked.all()
